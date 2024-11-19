@@ -1,31 +1,66 @@
+<!DOCTYPE html>
+<html lang="PT-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="chamado.php">
+    <title>PÁGINA DE CADASTRO</title>
+</head>
+<body>
+
+
 <?php
+require_once 'db.php';
 
-$conn = mysqli_connect('localhost', 'root', 'root', 'gerenciamento_chamados_1');
-
-if(!$conn){
-    echo "Conexão não deu boa:" . mysql_error();
+function criar_cliente() {
+    if (
+        isset($_POST['nome_cliente']) &&
+        isset($_POST['email_cliente']) &&
+        isset($_POST['telefone_cliente'])
+    ) {
+        $nome_cliente = ($_POST['nome_cliente']); //? $_POST['nome_cliente']  : 'Não há registro de nomes';
+        $email_cliente = ($_POST['email_cliente']); // ? $_POST['email_cliente']  : 'Não posssui email' ;
+        $telefone_cliente = ($_POST['telefone_cliente']); //? $_POST['telefone_cliente'] : 'Não possui';
+        inserir("cliente", ["nome_cliente", "email_cliente", "telefone_cliente"], ["'$nome_cliente'", "'$email_cliente'", "'$telefone_cliente'"]);
+    }
 }
 
-// DADOS CLIENTE
-$nome_cliente = isset($_POST['nome_cliente']) ? $_POST['nome_cliente'] : 'Não possui nome.';
-$email_cliente = isset($_POST['email_cliente']) ? $_POST['email_cliente'] : 'Não posssui email' ;
-$telefone_cliente = isset($_POST['telefone_cliente']) ? $_POST['telefone_cliente'] : 'Não possui';
-
-// CREATE
-function inserir(string $table, array $campos, array $values) { 
+function ver(string $table, array $campos){
     $campos = implode(',', $campos);
-    $values = implode(',', $values);
-    $query_inserir = "INSERT INTO $table ($campos) VALUES ($values)";
+    trim($campos); // acho q da pra excluir
+    
+    $query_ver = "SELECT $campos from $table";
     global $conn;
-    $conn->query($query_inserir);
-}
-
-// VER CLIENTE
-function ver(string $table){
-    $query_ver = "SELECT * from $table";
-    global $conn;
-    $conn->query($query_ver);
-}
+    $resultado = $conn->query($query_ver);
+    if($resultado->num_rows > 0){
+        echo "<h2>Lista de Usuários</h2>";
+        echo "<table>";
+        
+        $dados = [];
+        
+        while($row = $resultado->fetch_assoc()){
+            $dados[] = $row;
+        }
+        
+        foreach ($dados as $dado) {
+            ?>
+            <tr>
+            <td><?= $dado["pk_cliente"] ?></td>
+            <td><?= $dado["nome_cliente"] ?></td>
+            <td><?= $dado["email_cliente"] ?></td>
+            <td><?= $dado["telefone_cliente"] ?></td>
+            <td>
+            <a href="">Deletar</a>
+            </td>
+            </tr>
+            <?php
+        }
+        
+        echo "</table>";
+    } else{
+        echo "Nenhum resultado encontrado";
+    }
+} 
 
 // UPDATE CLIENTE
 function updateCliente(string $table, array $dados, string $id) {
@@ -41,43 +76,26 @@ function updateCliente(string $table, array $dados, string $id) {
     $conn->query($query_update);
 }
 
-inserir("cliente", ['nome_cliente', 'email_cliente', 'telefone_cliente'], ["'$nome_cliente', '$email_cliente', '$telefone_cliente'"]);
+// inserir("cliente", ['nome_cliente', 'email_cliente', 'telefone_cliente'], ["'$nome_cliente'", "'$email_cliente'", "'$telefone_cliente'"]);
+ver("cliente", ['pk_cliente', 'nome_cliente', 'email_cliente', 'telefone_cliente']);
 
+if($_SERVER["REQUEST_METHOD"] === "POST"){
+    criar_cliente();
+}
 ?>
 
-<!DOCTYPE html>
-<html lang="PT-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PÁGINA DE CADASTRO</title>
-</head>
-<body>
-    <h1>PÁGINA DE CADASTRO</h1>
-    <form action="enviar_cadastro" name="enviar_cadastro" method="post">
+    <form name="enviar_cadastro" method="POST">
         <label  for="nome_cliente" value="nome_cliente" required>Insira seu nome:</label><br>
         <input name="nome_cliente" type="text"  required><br><br>
+
         <label  for="email_cliente" value="email_cliente" required > Insira seu email:</label><br>
         <input name="email_cliente" type="text"  required><br><br>
+
         <label for="telefone_cliente" value="telefone_cliente" required >Insira seu telefone: <br> Ex: (XX)9XXXX-XXXX</label><br>
         <input name= "telefone_cliente"  type="text" required><br><br>
+
         <input type="submit" name="enviar_cadastro" > 
     </form>
-    <link rel="stylesheet" href="chamado.php">
-
-
-
+    <a href="chamado.php">Chamados</a>
 </body>
 </html>
-
-
-        
-    
-        
-    
-
-
-
-
-
-
