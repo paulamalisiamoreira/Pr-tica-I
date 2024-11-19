@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS gerenciamento_chamados_1; 
+
 CREATE DATABASE gerenciamento_chamados_1;
 USE gerenciamento_chamados_1;
 
@@ -17,6 +19,7 @@ telefone_colaborador varchar(11)
 
 CREATE TABLE chamado(
 pk_chamado int primary key not null auto_increment,
+titulo_chamado varchar(50),
 fk_cliente int not null,
 FOREIGN KEY (fk_cliente) REFERENCES cliente(pk_cliente),
 fk_colaborador int not null,
@@ -26,3 +29,4 @@ criticidade varchar(15),
 estatus varchar(20),
 data_abertura date
 );
+
